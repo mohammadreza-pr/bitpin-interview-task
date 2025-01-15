@@ -10,4 +10,5 @@ The system should detect and prevent rating manipulation. Because of millions of
 
 # Entity Relationship Diagram
 ![ER picture](/pictures/ER.png)
+
 This is the data model of our entities in this system regarding the entities, relations, and attributes. 
