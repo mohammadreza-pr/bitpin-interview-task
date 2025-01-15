@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User 
+from user.models import User
 
 
 class Post(models.Model):
@@ -7,9 +7,11 @@ class Post(models.Model):
     text = models.TextField()
     total_votes = models.IntegerField(default=0)
     average_score = models.FloatField(default=0.0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
 
     def __str__(self):
         return self.title
+    
 
 class Rating(models.Model):
     SCORE_CHOICES = [(i, str(i)) for i in range(6)]
