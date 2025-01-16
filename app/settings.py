@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'content',
     'user',
     'rest_framework_simplejwt', 
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -120,6 +121,20 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': "JWT Authorization header using the Bearer scheme. Example: `Bearer {token}`",
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+}
 
 
 # Static files (CSS, JavaScript, Images)
