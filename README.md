@@ -43,4 +43,9 @@ A complete documentation of APIs is granted in the `/swagger/` URL. Parameters a
 
 # Rating Manipulation Prevention
 
+To prevent any possible fraud in rating contents we used a weighted rating system in which all the rates do not have the same effect. Based on the number of rates a content had in the past hour a new rate would affect the average score differently. It has two main components:
+1. Redis Cache: to count how many rates have been submitted for specific content.
+2. A function to calculate new rate weight based on the number of previous rates.
+
+
     
