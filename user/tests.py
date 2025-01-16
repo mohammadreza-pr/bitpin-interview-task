@@ -6,18 +6,17 @@ class UserAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
 
-        # Test user data
         self.user_data = {
             'username': 'testuser',
             'email': 'testuser@example.com',
             'password': 'securepassword123',
         }
 
-        # Create a test user
+       
         self.user = User.objects.create_user(
             username=self.user_data['username'],
             email=self.user_data['email'],
-            password=self.user_data['password'],  # Automatically hashed
+            password=self.user_data['password'],  
         )
 
     def test_signup_success(self):
@@ -43,23 +42,23 @@ class UserAPITests(APITestCase):
         """Test obtaining token with valid credentials"""
         response = self.client.post('/api/user/token/', {
             'username': self.user_data['username'],
-            'password': self.user_data['password'],  # Correct password
+            'password': self.user_data['password'],  
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)  # Check for access token
-        self.assertIn('refresh', response.data)  # Check for refresh token
+        self.assertIn('access', response.data)  
+        self.assertIn('refresh', response.data)  
 
     def test_token_obtain_invalid_credentials(self):
         """Test obtaining token with invalid credentials"""
         response = self.client.post('/api/user/token/', {
             'username': self.user_data['username'],
-            'password': 'wrongpassword',  # Incorrect password
+            'password': 'wrongpassword',  
         })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_token_refresh_success(self):
         """Test refreshing token with a valid refresh token"""
-        # Obtain token first
+        
         token_response = self.client.post('/api/user/token/', {
             'username': self.user_data['username'],
             'password': self.user_data['password'],
