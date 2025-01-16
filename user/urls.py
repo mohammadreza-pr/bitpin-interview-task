@@ -10,5 +10,5 @@ router.register('signup', SignupViewset, basename='signup')
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('signup/', include(router.urls)),
+    path('', include(router.urls)),
 ]
