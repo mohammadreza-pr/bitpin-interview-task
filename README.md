@@ -12,3 +12,35 @@ The system should detect and prevent rating manipulation. Because of millions of
 ![ER picture](/pictures/ER-diagram.png)
 
 This is the data model of our entities in this system regarding the entities, relations, and attributes. 
+
+# System Architecture
+The following picture shows how different parts of the system interact with each other.
+
+![Arch Diagram](/pictures/Arch-diagram.jpg)
+- The Postgersql is used as the DB in this system.
+
+- Kafka is used to handle the thousands of requests for rating a content.
+
+- Redis is used to retrive a popluar content frequently and preventing rate cheating. 
+
+# Endpoints Doc
+A complete documentaion of APIs is granted in the `/swagger/` URL. Parameters and possible outputs are described for each endpoint. One sample is like bellow. 
+- User Signup
+    - Endpoint: `/api/user/signup/`
+    - Parameters: 
+        - Example :
+        
+            ```json
+            {
+                "username": "RandomUser",
+                "password": "RandomPassword",
+                "email": "random@gmail.com"
+            }
+            ```
+    - Response : 
+        - `201-Created` : User has been created
+        - `400-Bad Request`: Missing some parameters
+
+# Rating Maniuplation Prevention
+
+    
