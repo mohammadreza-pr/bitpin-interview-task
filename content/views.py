@@ -1,10 +1,13 @@
 from drf_yasg.utils import swagger_auto_schema 
 from drf_yasg import openapi
 from .models import Content
+from confluent_kafka import Producer
 from rest_framework import viewsets, response, status, permissions
-from .serializers import CreateContentSerializer, ContentSerializer
+from .serializers import CreateContentSerializer, ContentSerializer, RateSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
+from django.conf import settings
+import json
 
 
 class ContentPagination(PageNumberPagination):
@@ -14,7 +17,7 @@ class ContentPagination(PageNumberPagination):
 
 class ContentViewset(viewsets.ViewSet):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     pagination_class = ContentPagination
 
     @swagger_auto_schema(
@@ -46,5 +49,35 @@ class ContentViewset(viewsets.ViewSet):
         serializer = ContentSerializer(page, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
-        
+class RateViewset(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
+    def send_to_kafka(self, topic, message):
+        conf = {'bootstrap.servers': settings.KAFKA_BROKER_URL}
+        producer = Producer(**conf)
+        try:
+            producer.produce(topic, json.dumps(message).encode('utf-8'))
+            producer.flush()
+            print(f"Message sent to topic '{topic}': {message}")
+        except Exception as e:
+            print(f"Error producing to Kafka: {e}")
+
+    @swagger_auto_schema(
+        request_body=RateSerializer,
+        responses={202: RateSerializer, 400: 'Bad Request'}
+    )
+    def create(self, request):
+        serializer = RateSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            message = {
+                "user_id": request.user.id,
+                "post_id": serializer.validated_data['post'].id,
+                "score": serializer.validated_data['score'],
+                "weight": 1,
+            }
+            self.send_to_kafka(settings.KAFKA_TOPIC_RATINGS, message)
+            return response.Response(
+                {"message": "Rating has been subscribed."}, 
+                status=status.HTTP_202_ACCEPTED
+            )
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
