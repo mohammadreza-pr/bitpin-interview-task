@@ -12,6 +12,9 @@ RUN pip install pipenv && pipenv install --system --deploy
 
 COPY . /app/
 
+RUN chmod +x /app/startup.sh
+
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/app/startup.sh"]
+
