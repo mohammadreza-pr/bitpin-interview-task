@@ -1,8 +1,7 @@
 from django.db import models
-from user.models import User
+from django.contrib.auth.models import User
 
-
-class Post(models.Model):
+class Content(models.Model):
     title = models.CharField(max_length=255)
     text = models.TextField()
     total_votes = models.IntegerField(default=0)
@@ -13,11 +12,11 @@ class Post(models.Model):
         return self.title
     
 
-class Rating(models.Model):
+class Rate(models.Model):
     SCORE_CHOICES = [(i, str(i)) for i in range(6)]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='ratings')
+    post = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='ratings')
     score = models.IntegerField(choices=SCORE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
