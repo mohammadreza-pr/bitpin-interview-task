@@ -12,6 +12,8 @@ djangorestframework-simplejwt = "*"
 drf-yasg = "*"
 confluent-kafka = "*"
 drf-spectacular = {extras = ["swagger-ui"], version = "*"}
+django-redis = "*"
+redis = "*"
 
 [dev-packages]
 
