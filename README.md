@@ -16,7 +16,7 @@ Creating a rating system as a part of the Bitpin company interview process.
 A system of users who can post content. The contents have a title and description. Users can rate content with a score from 0 to 5, but only once. Any repeated rating would be updated with the new score. Each content has several rates and average cumulative scores.
 
 # None Functional Requirements
-The system should detect and prevent rating manipulation. Because there are millions of rates for each content, calculating the average cumulative scores should be lazy and in real-time.
+The system should detect and prevent rating manipulation. Because each content has millions of rates, calculating the average cumulative scores should be lazy and in real-time.
 
 # Entity Relationship Diagram
 ![ER picture](/pictures/ER-diagram.png)
@@ -34,7 +34,7 @@ The following picture shows how different parts of the system interact.
 - Redis is used to retrieve popular content frequently and prevent rate cheating. 
 
 # Endpoints Doc
-A complete documentation of APIs is granted in the `/api/schema/swagger-ui/` URL. Parameters and possible outputs are described for each endpoint. One sample is like below. 
+The `/api/schema/swagger-ui/` URL provides complete API documentation. Parameters and possible outputs are described for each endpoint. One sample is below. 
 - User Signup
     - Endpoint: `/api/user/signup/`
     - Parameters: 
@@ -58,8 +58,8 @@ To prevent any possible fraud in rating contents we used a weighted rating syste
 2. A function to calculate new rate weight based on the number of previous rates.
 
 # Load Balance
-- By using a kafka queue in front of API gateway we controll the heavy load of rating different contents.
-- There is an interface in which the logic of reteriving the list of contents can changed to use the redis cache for frequent GET requests.
+- By using a Kafka queue in front of the API gateway we control the heavy load of rating different contents.
+- There is an interface in which the logic of retrieving the list of contents can changed to use the Redis cache for frequent GET requests.
 
 
     
