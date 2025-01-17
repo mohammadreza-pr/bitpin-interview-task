@@ -11,7 +11,7 @@ class CreateContentSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class ContentSerializer(serializers.ModelSerializer):
-    is_rated = serializers.SerializerMethodField()
+    
     user_rate = serializers.SerializerMethodField()
     class Meta:
         model = Content
