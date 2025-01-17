@@ -1,6 +1,16 @@
 # Rating System
 Creating a rating system as a part of the Bitpin company interview process. 
 
+# Table Of Contents
+- [Requirements](#Requirements)
+- [None Functional Requirements](#None-Functional-Requirements)
+- [Entity Relationship Diagram](#Entity-Relationship-Diagram)
+- [System Architecture](#System-Architecture)
+- [Endpoints Doc](#Endpoints-Doc)
+- [Rating Manipulation Prevention](#Rating-Manipulation-Prevention)
+- [Load Balane](#Load-Balance)
+
+
 # Requirements
 
 A system of users who can post content. The contents have a title and description. Users can rate content with a score from 0 to 5, but only once. Any repeated rating would be updated with the new score. Each content has several rates and average cumulative scores.
@@ -24,7 +34,7 @@ The following picture shows how different parts of the system interact.
 - Redis is used to retrieve popular content frequently and prevent rate cheating. 
 
 # Endpoints Doc
-A complete documentation of APIs is granted in the `/swagger/` URL. Parameters and possible outputs are described for each endpoint. One sample is like below. 
+A complete documentation of APIs is granted in the `/api/schema/swagger-ui/` URL. Parameters and possible outputs are described for each endpoint. One sample is like below. 
 - User Signup
     - Endpoint: `/api/user/signup/`
     - Parameters: 
@@ -46,6 +56,10 @@ A complete documentation of APIs is granted in the `/swagger/` URL. Parameters a
 To prevent any possible fraud in rating contents we used a weighted rating system in which all the rates do not have the same effect. Based on the number of rates a content had in the past hour a new rate would affect the average score differently. It has two main components:
 1. Redis Cache: to count how many rates have been submitted for specific content.
 2. A function to calculate new rate weight based on the number of previous rates.
+
+# Load Balance
+- By using a kafka queue in front of API gateway we controll the heavy load of rating different contents.
+- There is an interface in which the logic of reteriving the list of contents can changed to use the redis cache for frequent GET requests.
 
 
     
