@@ -1,11 +1,11 @@
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from .serializers import UserSignupSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
 class SignupViewset(viewsets.ViewSet):
-    @swagger_auto_schema(
-        request_body=UserSignupSerializer,
+    @extend_schema(
+        request=UserSignupSerializer,
         responses={201: UserSignupSerializer, 400: 'Bad Request'}
     )
     def create(self, request):

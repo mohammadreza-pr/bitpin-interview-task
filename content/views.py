@@ -1,4 +1,5 @@
-from drf_yasg.utils import swagger_auto_schema 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from drf_yasg import openapi
 from .models import Content
 from confluent_kafka import Producer
@@ -20,8 +21,8 @@ class ContentViewset(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = ContentPagination
 
-    @swagger_auto_schema(
-        request_body=CreateContentSerializer,
+    @extend_schema(
+        request=CreateContentSerializer,
         responses={201: CreateContentSerializer, 400: 'Bad Request'}
     )
     def create(self, request):
@@ -31,14 +32,14 @@ class ContentViewset(viewsets.ViewSet):
             return response.Response(serialiser.data, status=status.HTTP_201_CREATED)
         return response.Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                'page',
-                openapi.IN_QUERY,
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='page',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
                 description='Page number for pagination',
-                type=openapi.TYPE_INTEGER,
-                required=False
+                required=False,
             ),
         ]
     )
@@ -62,8 +63,8 @@ class RateViewset(viewsets.ViewSet):
         except Exception as e:
             print(f"Error producing to Kafka: {e}")
 
-    @swagger_auto_schema(
-        request_body=RateSerializer,
+    @extend_schema(
+        request=RateSerializer,
         responses={202: RateSerializer, 400: 'Bad Request'}
     )
     def create(self, request):

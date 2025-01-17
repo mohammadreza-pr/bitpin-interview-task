@@ -6,8 +6,6 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
@@ -32,6 +30,8 @@ INSTALLED_APPS = [
     'user',
     'rest_framework_simplejwt', 
     'drf_yasg',
+    'drf_spectacular',
+
 ]
 
 MIDDLEWARE = [
@@ -68,6 +68,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 #JWT Settings
@@ -123,17 +124,12 @@ USE_I18N = True
 USE_TZ = True
 
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': "JWT Authorization header using the Bearer scheme. Example: `Bearer {token}`",
-        }
-    },
-    'USE_SESSION_AUTH': False,
-    'JSON_EDITOR': True,
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 
