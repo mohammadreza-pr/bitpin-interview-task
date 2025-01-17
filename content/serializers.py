@@ -11,7 +11,7 @@ class CreateContentSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class ContentSerializer(serializers.ModelSerializer):
-    
+
     user_rate = serializers.SerializerMethodField()
     class Meta:
         model = Content
@@ -22,6 +22,12 @@ class ContentSerializer(serializers.ModelSerializer):
         user = self.context['request'].user  
         rating = Rate.objects.filter(user=user, post=obj).first()
         return rating.score if rating else None
+    
+class RateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rate
+        fields = ['score', 'post']
+    
     
 
 
