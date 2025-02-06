@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from utils.exceptions import CustomException
 from .models import Content
 from confluent_kafka import Producer
 from rest_framework import viewsets, response, status, permissions
@@ -33,11 +34,11 @@ class ContentViewset(viewsets.ViewSet):
         responses={201: CreateContentSerializer, 400: 'Bad Request'}
     )
     def create(self, request):
-        serialiser = CreateContentSerializer(data=request.data, context={'request': request})
-        if serialiser.is_valid():
-            serialiser.save()
-            return response.Response(serialiser.data, status=status.HTTP_201_CREATED)
-        return response.Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CreateContentSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED) 
+        raise CustomException()
     
     @extend_schema(
         parameters=[
@@ -99,4 +100,4 @@ class RateViewset(viewsets.ViewSet):
                 {"message": "Rating has been subscribed."}, 
                 status=status.HTTP_202_ACCEPTED
             )
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise CustomException()

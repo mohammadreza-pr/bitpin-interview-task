@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from .serializers import UserSignupSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets, status
+from utils.exceptions import CustomException
 
 class SignupViewset(viewsets.ViewSet):
     @extend_schema(
@@ -13,6 +14,6 @@ class SignupViewset(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise CustomException()
 
 
