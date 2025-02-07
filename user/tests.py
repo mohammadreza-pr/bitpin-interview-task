@@ -1,82 +1,73 @@
+import pytest
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User
+from .factories import UserFactory
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
-class UserAPITests(APITestCase):
-    def setUp(self):
-        self.client = APIClient()
+@pytest.fixture
+def api_client():
+    """Fixture to provide an API client for testing."""
+    return APIClient()
 
-        self.user_data = {
-            'username': 'testuser',
-            'email': 'testuser@example.com',
-            'password': 'securepassword123',
-        }
+@pytest.fixture
+def test_user(db):
+    """Fixture to create a user instance in the database."""
+    return UserFactory(username="testuser")
 
-       
-        self.user = User.objects.create_user(
-            username=self.user_data['username'],
-            email=self.user_data['email'],
-            password=self.user_data['password'],  
-        )
+@pytest.fixture
+def auth_tokens(api_client, test_user):
+    """Fixture to obtain authentication tokens for a test user."""
+    response = api_client.post('/api/user/token/', {
+        'username': test_user.username,
+        'password': 'securepassword123',
+    })
+    return response.data
 
-    def test_signup_success(self):
-        """Test successful signup"""
-        response = self.client.post('/api/user/signup/', {
-            'username': 'newuser',
-            'email': 'newuser@example.com',
-            'password': 'securepassword123',
-        })
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('username', response.data)
-        self.assertEqual(response.data['username'], 'newuser')
+def test_signup_success(api_client):
+    """Test user signup with valid data."""
+    response = api_client.post('/api/user/signup/', {
+        'username': 'newuser',
+        'email': 'newuser@example.com',
+        'password': 'securepassword123',
+    })
+    assert response.status_code == 201
+    assert 'username' in response.data
+    assert response.data['username'] == 'newuser'
 
-    def test_signup_missing_fields(self):
-        """Test signup with missing required fields"""
-        response = self.client.post('/api/user/signup/', {
-            'username': 'newuser',
-        })  
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+def test_signup_missing_fields(api_client):
+    """Test signup with missing required fields."""
+    response = api_client.post('/api/user/signup/', {'username': 'newuser'})
+    assert response.status_code == 400
 
-    def test_token_obtain_success(self):
-        """Test obtaining token with valid credentials"""
-        response = self.client.post('/api/user/token/', {
-            'username': self.user_data['username'],
-            'password': self.user_data['password'],  
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)  
-        self.assertIn('refresh', response.data)  
+def test_token_obtain_success(api_client, test_user):
+    """Test obtaining token with valid credentials."""
+    response = api_client.post('/api/user/token/', {
+        'username': test_user.username,
+        'password': 'securepassword123',
+    })
+    assert response.status_code == 200
+    assert 'access' in response.data
+    assert 'refresh' in response.data
 
-    def test_token_obtain_invalid_credentials(self):
-        """Test obtaining token with invalid credentials"""
-        response = self.client.post('/api/user/token/', {
-            'username': self.user_data['username'],
-            'password': 'wrongpassword',  
-        })
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+def test_token_obtain_invalid_credentials(api_client, test_user):
+    """Test obtaining token with invalid credentials."""
+    response = api_client.post('/api/user/token/', {
+        'username': test_user.username,
+        'password': 'wrongpassword',
+    })
+    assert response.status_code == 401
 
-    def test_token_refresh_success(self):
-        """Test refreshing token with a valid refresh token"""
-        
-        token_response = self.client.post('/api/user/token/', {
-            'username': self.user_data['username'],
-            'password': self.user_data['password'],
-        })
-        self.assertEqual(token_response.status_code, status.HTTP_200_OK)
+def test_token_refresh_success(api_client, auth_tokens):
+    """Test refreshing token with a valid refresh token."""
+    refresh_token = auth_tokens['refresh']
+    response = api_client.post('/api/user/token/refresh/', {'refresh': refresh_token})
+    assert response.status_code == 200
+    assert 'access' in response.data
 
-        refresh_token = token_response.data['refresh']  
-
-        response = self.client.post('/api/user/token/refresh/', {
-            'refresh': refresh_token,
-        })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
-
-    def test_token_refresh_invalid_token(self):
-        """Test refreshing token with an invalid refresh token"""
-        response = self.client.post('/api/user/token/refresh/', {
-            'refresh': 'invalid_refresh_token',
-        })
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertIn('detail', response.data)
+def test_token_refresh_invalid_token(api_client):
+    """Test refreshing token with an invalid refresh token."""
+    response = api_client.post('/api/user/token/refresh/', {'refresh': 'invalid_token'})
+    assert response.status_code == 401
+    assert 'detail' in response.data
